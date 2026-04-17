@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cd.oa.mapper.DealRecordMapper">
+
+    <resultMap id="dealRecordResultMap" type="com.cd.oa.entity.DealRecord">
+        <id property="id" column="id"/>
+        <result property="claimVoucherId" column="claim_voucher_id"/>
+        <result property="dealId" column="deal_id"/>
+        <result property="dealTime" column="deal_time"/>
+        <result property="dealType" column="deal_type"/>
+        <result property="dealResult" column="deal_result"/>
+        <result property="comment" column="comment"/>
+        <association property="dealer" javaType="com.cd.oa.entity.Employee">
+            <id property="id" column="emp_id"/>
+            <result property="name" column="emp_name"/>
+            <result property="post" column="emp_post"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.cd.oa.entity.DealRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO deal_record (claim_voucher_id, deal_id, deal_time, deal_type, deal_result, comment)
+        VALUES (#{claimVoucherId}, #{dealId}, #{dealTime}, #{dealType}, #{dealResult}, #{comment})
+    </insert>
+
+    <select id="selectById" parameterType="int" resultMap="dealRecordResultMap">
+        SELECT dr.*, e.id AS emp_id, e.name AS emp_name, e.post AS emp_post
+        FROM deal_record dr
+        LEFT JOIN employee e ON e.id = dr.deal_id
+        WHERE dr.id = #{id}
+    </select>
+
+    <select id="selectByClaimVoucherId" parameterType="int" resultMap="dealRecordResultMap">
+        SELECT dr.*, e.id AS emp_id, e.name AS emp_name, e.post AS emp_post
+        FROM deal_record dr
+        LEFT JOIN employee e ON e.id = dr.deal_id
+        WHERE dr.claim_voucher_id = #{claimVoucherId}
+        ORDER BY dr.deal_time ASC
+    </select>
+
+</mapper>

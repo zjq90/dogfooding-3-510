@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cd.oa.mapper.LogMapper">
+
+    <resultMap id="logResultMap" type="com.cd.oa.entity.Log">
+        <id property="id" column="id"/>
+        <result property="employeeId" column="employee_id"/>
+        <result property="operationTime" column="operation_time"/>
+        <result property="operation" column="operation"/>
+        <association property="employee" javaType="com.cd.oa.entity.Employee">
+            <id property="id" column="emp_id"/>
+            <result property="name" column="emp_name"/>
+        </association>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.cd.oa.entity.Log" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO log (employee_id, operation_time, operation)
+        VALUES (#{employeeId}, #{operationTime}, #{operation})
+    </insert>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM log WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="int" resultMap="logResultMap">
+        SELECT l.*, e.id AS emp_id, e.name AS emp_name
+        FROM log l
+        LEFT JOIN employee e ON e.id = l.employee_id
+        WHERE l.id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="logResultMap">
+        SELECT l.*, e.id AS emp_id, e.name AS emp_name
+        FROM log l
+        LEFT JOIN employee e ON e.id = l.employee_id
+        ORDER BY l.operation_time DESC
+    </select>
+
+</mapper>
