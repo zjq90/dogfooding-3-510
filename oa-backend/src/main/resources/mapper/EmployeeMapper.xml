@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cd.oa.mapper.EmployeeMapper">
+
+    <resultMap id="employeeResultMap" type="com.cd.oa.entity.Employee">
+        <id property="id" column="id"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="departmentId" column="department_id"/>
+        <result property="post" column="post"/>
+        <association property="department" javaType="com.cd.oa.entity.Department">
+            <id property="id" column="dept_id"/>
+            <result property="name" column="dept_name"/>
+            <result property="address" column="dept_address"/>
+        </association>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        e.id, e.password, e.name, e.department_id, e.post,
+        d.id AS dept_id, d.name AS dept_name, d.address AS dept_address
+    </sql>
+
+    <insert id="insert" parameterType="com.cd.oa.entity.Employee">
+        INSERT INTO employee (id, password, name, department_id, post)
+        VALUES (#{id}, #{password}, #{name}, #{departmentId}, #{post})
+    </insert>
+
+    <update id="update" parameterType="com.cd.oa.entity.Employee">
+        UPDATE employee
+        SET name = #{name},
+            <if test="password != null and password != ''">
+                password = #{password},
+            </if>
+            department_id = #{departmentId},
+            post = #{post}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="string">
+        DELETE FROM employee WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="string" resultMap="employeeResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM employee e
+        LEFT JOIN department d ON d.id = e.department_id
+        WHERE e.id = #{id}
+    </select>
+
+    <select id="selectAll" resultMap="employeeResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM employee e
+        LEFT JOIN department d ON d.id = e.department_id
+        ORDER BY e.department_id, e.id
+    </select>
+
+    <select id="selectByDepartmentAndPost" resultMap="employeeResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM employee e
+        LEFT JOIN department d ON d.id = e.department_id
+        WHERE 1 = 1
+        <if test="departmentId != null and departmentId != ''">
+            AND e.department_id = #{departmentId}
+        </if>
+        <if test="post != null and post != ''">
+            AND e.post = #{post}
+        </if>
+        ORDER BY e.id
+    </select>
+
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cd.oa.mapper.ClaimVoucherMapper">
+
+    <resultMap id="claimVoucherResultMap" type="com.cd.oa.entity.ClaimVoucher">
+        <id property="id" column="id"/>
+        <result property="cause" column="cause"/>
+        <result property="createId" column="create_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="nextDealId" column="next_deal_id"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="status" column="status"/>
+        <association property="creator" javaType="com.cd.oa.entity.Employee">
+            <id property="id" column="creator_id"/>
+            <result property="name" column="creator_name"/>
+            <result property="post" column="creator_post"/>
+        </association>
+        <association property="dealer" javaType="com.cd.oa.entity.Employee">
+            <id property="id" column="dealer_id"/>
+            <result property="name" column="dealer_name"/>
+            <result property="post" column="dealer_post"/>
+        </association>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        cv.id, cv.cause, cv.create_id, cv.create_time, cv.next_deal_id, cv.total_amount, cv.status,
+        ce.id AS creator_id, ce.name AS creator_name, ce.post AS creator_post,
+        nd.id AS dealer_id, nd.name AS dealer_name, nd.post AS dealer_post
+    </sql>
+
+    <insert id="insert" parameterType="com.cd.oa.entity.ClaimVoucher" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO claim_voucher (cause, create_id, create_time, next_deal_id, total_amount, status)
+        VALUES (#{cause}, #{createId}, #{createTime}, #{nextDealId}, #{totalAmount}, #{status})
+    </insert>
+
+    <update id="update" parameterType="com.cd.oa.entity.ClaimVoucher">
+        UPDATE claim_voucher
+        SET cause = #{cause},
+            next_deal_id = #{nextDealId},
+            total_amount = #{totalAmount},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM claim_voucher WHERE id = #{id}
+    </delete>
+
+    <select id="selectById" parameterType="int" resultMap="claimVoucherResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM claim_voucher cv
+        LEFT JOIN employee ce ON ce.id = cv.create_id
+        LEFT JOIN employee nd ON nd.id = cv.next_deal_id
+        WHERE cv.id = #{id}
+    </select>
+
+    <select id="selectByCreateId" parameterType="string" resultMap="claimVoucherResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM claim_voucher cv
+        LEFT JOIN employee ce ON ce.id = cv.create_id
+        LEFT JOIN employee nd ON nd.id = cv.next_deal_id
+        WHERE cv.create_id = #{createId}
+        ORDER BY cv.create_time DESC
+    </select>
+
+    <select id="selectByNextDealId" parameterType="string" resultMap="claimVoucherResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM claim_voucher cv
+        LEFT JOIN employee ce ON ce.id = cv.create_id
+        LEFT JOIN employee nd ON nd.id = cv.next_deal_id
+        WHERE cv.next_deal_id = #{nextDealId}
+        ORDER BY cv.create_time DESC
+    </select>
+
+</mapper>

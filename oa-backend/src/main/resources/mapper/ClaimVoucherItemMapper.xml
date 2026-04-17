@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cd.oa.mapper.ClaimVoucherItemMapper">
+
+    <resultMap id="itemResultMap" type="com.cd.oa.entity.ClaimVoucherItem">
+        <id property="id" column="id"/>
+        <result property="claimVoucherId" column="claim_voucher_id"/>
+        <result property="item" column="item"/>
+        <result property="amount" column="amount"/>
+        <result property="comment" column="comment"/>
+    </resultMap>
+
+    <sql id="baseColumnList">
+        id, claim_voucher_id, item, amount, comment
+    </sql>
+
+    <insert id="insert" parameterType="com.cd.oa.entity.ClaimVoucherItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO claim_voucher_item (claim_voucher_id, item, amount, comment)
+        VALUES (#{claimVoucherId}, #{item}, #{amount}, #{comment})
+    </insert>
+
+    <update id="update" parameterType="com.cd.oa.entity.ClaimVoucherItem">
+        UPDATE claim_voucher_item
+        SET item = #{item},
+            amount = #{amount},
+            comment = #{comment}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM claim_voucher_item WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteByClaimVoucherId" parameterType="int">
+        DELETE FROM claim_voucher_item WHERE claim_voucher_id = #{claimVoucherId}
+    </delete>
+
+    <select id="selectById" parameterType="int" resultMap="itemResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM claim_voucher_item
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectByClaimVoucherId" parameterType="int" resultMap="itemResultMap">
+        SELECT <include refid="baseColumnList"/>
+        FROM claim_voucher_item
+        WHERE claim_voucher_id = #{claimVoucherId}
+        ORDER BY id
+    </select>
+
+</mapper>
