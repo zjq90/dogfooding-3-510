@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oa.backend.mapper.ClaimVoucherMapper">
+
+    <resultMap id="BaseResultMap" type="com.oa.backend.entity.ClaimVoucher">
+        <id column="id" property="id"/>
+        <result column="cause" property="cause"/>
+        <result column="create_id" property="createId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="next_deal_id" property="nextDealId"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="status" property="status"/>
+        <association property="creator" javaType="com.oa.backend.entity.Employee">
+            <id column="creator_id" property="id"/>
+            <result column="creator_name" property="name"/>
+            <result column="creator_post" property="post"/>
+        </association>
+        <association property="dealer" javaType="com.oa.backend.entity.Employee">
+            <id column="dealer_id" property="id"/>
+            <result column="dealer_name" property="name"/>
+            <result column="dealer_post" property="post"/>
+        </association>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        cv.id, cv.cause, cv.create_id, cv.create_time, cv.next_deal_id, cv.total_amount, cv.status
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO claim_voucher (cause, create_id, create_time, next_deal_id, total_amount, status)
+        VALUES (#{cause}, #{createId}, #{createTime}, #{nextDealId}, #{totalAmount}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE claim_voucher
+        SET cause = #{cause},
+            total_amount = #{totalAmount}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE claim_voucher
+        SET status = #{status},
+            next_deal_id = #{nextDealId}
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            e1.id AS creator_id,
+            e1.name AS creator_name,
+            e1.post AS creator_post,
+            e2.id AS dealer_id,
+            e2.name AS dealer_name,
+            e2.post AS dealer_post
+        FROM claim_voucher cv
+        LEFT JOIN employee e1 ON e1.id = cv.create_id
+        LEFT JOIN employee e2 ON e2.id = cv.next_deal_id
+        WHERE cv.id = #{id}
+    </select>
+
+    <select id="selectByCreateId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            e1.id AS creator_id,
+            e1.name AS creator_name,
+            e1.post AS creator_post,
+            e2.id AS dealer_id,
+            e2.name AS dealer_name,
+            e2.post AS dealer_post
+        FROM claim_voucher cv
+        LEFT JOIN employee e1 ON e1.id = cv.create_id
+        LEFT JOIN employee e2 ON e2.id = cv.next_deal_id
+        WHERE cv.create_id = #{createId}
+        ORDER BY cv.create_time DESC
+    </select>
+
+    <select id="selectByNextDealId" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>,
+            e1.id AS creator_id,
+            e1.name AS creator_name,
+            e1.post AS creator_post,
+            e2.id AS dealer_id,
+            e2.name AS dealer_name,
+            e2.post AS dealer_post
+        FROM claim_voucher cv
+        LEFT JOIN employee e1 ON e1.id = cv.create_id
+        LEFT JOIN employee e2 ON e2.id = cv.next_deal_id
+        WHERE cv.next_deal_id = #{nextDealId}
+        ORDER BY cv.create_time DESC
+    </select>
+</mapper>
